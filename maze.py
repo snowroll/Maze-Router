@@ -2,7 +2,7 @@
 
 import os, sys
 import numpy as np
-import datetime
+import time
 import random
 
 source_point = []
@@ -26,7 +26,7 @@ dx = [-1, 1, 0, 0]
 dy = [0, 0, -1, 1]
 
 
-def init_map():
+def init_map(block_mode):
     with open("input.txt", 'r') as fin:
         line = fin.readline()
         info = line.strip().split(' ')
@@ -58,11 +58,13 @@ def init_map():
 
         line = fin.readline()
         block_cnt = int(line.strip())
-        # for i in range(0, block_cnt):
-        #     line = fin.readline()
-        #     info = line.strip().split(' ')
-        #     grid[int(info[0])][int(info[1])].p_type = "block"
-        random_block(block_cnt, rows, cols, source_point)
+        if block_mode == 0:  # 手动添加障碍点
+            for i in range(0, block_cnt):
+                line = fin.readline()
+                info = line.strip().split(' ')
+                grid[int(info[0])][int(info[1])].p_type = "block"
+        else:  # 自动生成障碍点
+            random_block(block_cnt, rows, cols, source_point)
 
     return rows, cols
 
@@ -95,7 +97,7 @@ def isOK(x, y, rows, cols):
 
 
 def search(rows, cols):
-    print(len(source))
+    # print(len(source))
     trace = []
     head = 0
     tail = -1
@@ -105,7 +107,7 @@ def search(rows, cols):
     tar_x = 0
     tar_y = 0
     while head <= tail:
-        print("head: " + str(head) + ";" + "tail: " + str(tail))
+        # print("head: " + str(head) + ";" + "tail: " + str(tail))
         cur_tail = tail
         while head <= cur_tail:
             for k in range(0, 4):
@@ -118,7 +120,7 @@ def search(rows, cols):
                         tar_x = temp_x
                         tar_y = temp_y
                         trace.append(grid[temp_x][temp_y])
-                        print("find it!")
+                        # print("find it!")
                         return tar_x, tar_y
                     elif grid[temp_x][temp_y].p_type == "empty":
                         grid[temp_x][temp_y].p_type = "trace"
@@ -140,11 +142,11 @@ def print_grid(row, col):
             f.write('\n')
 
 
-def main():
-    rows, cols = init_map()
+def main(block_mode):
+    rows, cols = init_map(block_mode)
 
     source_size = len(source)
-    print(source_size)
+    # print(source_size)
     for i in range(0, source_size):
         tar_x, tar_y = search(rows, cols)
 
@@ -156,7 +158,7 @@ def main():
             tempy = tmp_y
             tmp_x = grid[tempx][tempy].lx
             tmp_y = grid[tempx][tempy].ly
-            print(str(tmp_x) + "," + str(tmp_y))
+            # print(str(tmp_x) + "," + str(tmp_y))
         grid[tmp_x][tmp_y].p_type = "target"
         # remove this source point
         source.remove(grid[tmp_x][tmp_y])
@@ -166,4 +168,9 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    block_mode = sys.argv[1]  # 生成障碍点的方式
+    start = time.clock()
+    main(block_mode)
+    end = time.clock()
+    print(end-start)
+

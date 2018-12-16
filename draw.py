@@ -1,5 +1,5 @@
 #-*- coding:utf-8 -*-
-from PIL import Image
+from PIL import Image, ImageDraw
 import numpy as np
 import cv2
 from optparse import OptionParser
@@ -20,6 +20,7 @@ def draw_result(size, rows, cols, pixels):
 
     ptype = {"empty": '0', "target": '1', "block": '2', "source" : "3"}
     r_index = -1
+    step = 0
     for row in pixels:
         r_index += 1
         c_index = -1
@@ -27,12 +28,16 @@ def draw_result(size, rows, cols, pixels):
             c_index += 1
             if pixels[r_index][c_index] == ptype['source']:  # 源 蓝色
                 background.paste(blue, (r_index*size, c_index*size))
+                step += 1
             elif pixels[r_index][c_index] == ptype['target']:  # 路径 红色
                 background.paste(red, (r_index*size, c_index*size))
+                step += 1
             elif pixels[r_index][c_index] == ptype['block']:  # 障碍物 黑色
                 background.paste(black, (r_index*size, c_index*size))
+    draw = ImageDraw.Draw(background)
+    draw.text((50, 0), "step: " + str(step), fill=(255, 127, 0))
     background.show()
-    background.save("result.jpg")
+    background.save("A-" + str(rows) + "-" + str(cols) + ".jpg") 
 
 if __name__ == '__main__':
     usage = 'Usage: %prog[-s size]'
